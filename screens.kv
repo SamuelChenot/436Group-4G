@@ -1,0 +1,82 @@
+# File name: screens.kv
+
+#The list of all screens that are contained within the menu manager. every feature that needs a screen should be here
+<MenuManager>:
+	WeatherScreen:
+	SettingsScreen:
+
+
+<WeatherScreen>:
+	name: "Weather"
+
+	#variables for the buttons/labels/images
+	location_input: _loc_Input
+	daily_button: dailyButton
+	currently_button: currentlyButton
+	hourly_button: hourlyButton
+	##simage_button: imageButton
+	city_label: _city_label
+
+	BoxLayout:
+		canvas.before:
+			Color:
+				rgba: .5,.5,1, 1
+			Rectangle:
+				pos: self.pos
+				size: self.size
+		orientation: 'vertical'
+
+		Label:
+			text: "Weather Screen"
+			size_hint_y: None
+			height: 30
+
+		BoxLayout:
+			orientation: "horizontal"
+			size_hint: 1, None
+			height: 30
+
+			Label:
+				text: "Location"
+				size_hint_x: None
+				width: 120
+			UserInput:
+				id: _loc_Input
+				hint_text: "Enter ZIP code, city, or city/state here"
+				on_text_validate: root.getWeather()
+
+		Button:
+			text: "Get Weather"
+			size_hint: 1, None
+			height: 30
+			on_release: root.getWeather()
+
+		Label:
+			id: _city_label
+			text: "Enter a location above to get the weather\nPowered by Dark Sky"
+			size_hint_y: None
+			height: 50
+
+		GridLayout:
+			rows: 1
+
+			Button:
+				id: currentlyButton
+				background_color: .5, .5, 1, 1
+				text: "Current\nConditions"
+				halign: "center"
+			Button:
+				id: hourlyButton
+				text: "Hourly\nForecast"
+				background_color: .5, .5, 1, 1
+				halign: "center"
+		GridLayout:
+		    rows: 1
+
+			Button:
+				id: dailyButton
+				halign: "left"
+				valign: "top"
+				text: "Weekly Summary"
+
+				background_color: .5, .5, 1, 1

@@ -1,0 +1,34 @@
+#File name: menu.kv
+
+<MenuContainer>:
+	AnchorLayout:
+		anchor_x: 'center'
+		anchor_y: 'bottom'
+		MenuBar:
+			id: _menu_bar
+			menu_container: root
+			screen_manager: sm
+			size_hint: 1, None
+			height: 48
+			
+	AnchorLayout:
+		anchor_x: 'right'
+		anchor_y: 'top'
+		ChatWindow:
+			id: _chat_window
+			screen_manager: sm
+			menu_container: root
+			size_hint: .5, None
+			height: root.height - _menu_bar.height
+			
+	AnchorLayout:
+		anchor_x: 'left'
+		anchor_y: 'top'
+		MenuManager:
+			id: sm
+			menu_bar: _menu_bar
+			chat_window: _chat_window
+			size_hint: .5, None
+			height: root.height - _menu_bar.height
+			
+

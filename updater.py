@@ -29,35 +29,53 @@ def getWeather(lat, lng):
     curr_loc = forecast(DARK_SKY_KEY, lat, lng)
     hours = len(curr_loc.hourly)
 
-    #put lists together for 48-hour information
-    temps = []
-    precips = []
-    winds = []
-    humids = []
+    #lists for 48-hour info
+    h_temps = []
+    h_precips = []
+    h_winds = []
+    h_humids = []
+    #lists for weekly info
+    w_temps = []
+    w_precips = []
+    w_winds = []
+    w_humids = []
+    # print((curr_loc['daily']['data']))
+    #get 48-hour data
     for i in range(0, 48):
         hour = curr_loc['hourly']['data'][i]
-        
         #add the data for the current hour into the array
-        temps.append(hour["temperature"])
-        winds.append((hour["windSpeed"], hour["windBearing"]))
-        humids.append(hour["humidity"])
+        h_temps.append(hour["temperature"])
+        h_winds.append((hour["windSpeed"], hour["windBearing"]))
+        h_humids.append(hour["humidity"])
         #if there's no probability of precipitation, there's no precipType
-        if(hour['precipProbability'] != 0):
-            precips.append(hour["precipType"])
+        if('precipType' in hour):
+            h_precips.append(hour["precipType"])
         else:
-            precips.append(None)
+            h_precips.append(None)
+
+    for i in range(0, 7):
+        day = curr_loc['daily']['data'][i]
+        #add the data for the current day into the array
+        w_temps.append((day["temperatureLow"], day["temperatureHigh"]))
+        w_winds.append((day["windSpeed"], day["windBearing"]))
+        w_humids.append(day["humidity"])
+        #if there's no probability of precipitation, there's no precipType
+        if('precipType' in day):
+            w_precips.append(day["precipType"])
+        else:
+            w_precips.append(None)
 
     # return necessary info for the next 48 hours
-    return temps, precips, winds, humids
+    return h_temps, h_precips, h_winds, h_humids, w_temps, w_precips, w_winds, w_humids
 
 #put all info for all 48 hours in all mountains into a single dictionary
 def assembleData(mountains):
     mountainInfo = {}
     #get the info for each mountain
     for mountain in mountains:
-        temps, precips, winds, humids = getWeather(mountains[mountain][0], mountains[mountain][1])
+        h_temps, h_precips, h_winds, h_humids, w_temps, w_precips, w_winds, w_humids = getWeather(mountains[mountain][0], mountains[mountain][1])
         #put all that info into a dictionary by mountain name
-        mountainInfo[mountain] = {'temperatures': temps, 'precipitations': precips, 'winds': winds, 'humidities': humids}
+        mountainInfo[mountain] = {"daily": {'temperatures': h_temps, 'precipitations': h_precips, 'winds': h_winds, 'humidities': h_humids}, "weekly": {'temperatures': w_temps, 'precipitations': w_precips, 'winds': w_winds, 'humidities': w_humids}}
         print(mountain, " done.")
     return mountainInfo
 
@@ -70,12 +88,11 @@ def main():
     mountains = readFile('mountains.txt')
     #Intial call when program launches
     mountainInfo = assembleData(mountains)
-    while True:
+    while False:
         # #Call function on mountains every 12 hours
         if(curr_time == "12:00:00" or curr_time == "00:00:00"):
             mountainInfo = assembleData(mountains)
-    print("Info:")
-    print(mountainInfo)
+    #add the dict data to the database
     updateDatabase(mountainInfo)
 
 main()

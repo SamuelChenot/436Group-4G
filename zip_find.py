@@ -8,7 +8,7 @@ def zip_to_city_state(zipcode):
     #print("dict: ", city_state)
 
     city = city_state["major_city"]
-    state = city_state["state"]
+    state = city_state["state`"]
     #print("city: ", city, " state: ", state)
 
     return city, state

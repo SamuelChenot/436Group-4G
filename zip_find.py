@@ -12,3 +12,12 @@ def zip_to_city_state(zipcode):
     #print("city: ", city, " state: ", state)
 
     return city, state
+
+def zip_to_coords(zipcode):
+    zip_dict = zipcode.to_dict()
+    #print("dict: ", zip_dict)
+
+    latitude = zip_dict["lat"]
+    longitude = zip_dict["lng"]
+    #print(latitude, " ", longitude)
+    return latitude, longitude

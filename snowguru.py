@@ -69,6 +69,10 @@ class SettingsScreen(Screen):
         #add the user data to the dictionary if the user entered into the textbox
         if (self.user_name.text != ""):
             user_data["user_name"] = self.user_name.text
+            print(self.user_name.text)
+        if(self.password.text != ""):
+            user_data["password"] = self.password.text
+            
 
         #try to locate the city/state from the given zipcode
         #if it fails, don't write to the data file

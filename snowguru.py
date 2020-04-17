@@ -2,6 +2,7 @@
 from kivy.config import Config
 Config.set('input', 'mouse', 'mouse,multitouch_on_demand')
 
+
 #import the required kivy dependencies
 from kivy.app import App
 from kivy.lang import Builder
@@ -18,6 +19,8 @@ from kivy.uix.dropdown import DropDown
 from kivy.uix.label import Label
 from kivy.uix.image import Image
 from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.recycleview import RecycleView
+
 
 import setup
 import zip_find
@@ -69,7 +72,6 @@ class SettingsScreen(Screen):
         #add the user data to the dictionary if the user entered into the textbox
         if (self.user_name.text != ""):
             user_data["user_name"] = self.user_name.text
-            print(self.user_name.text)
         if(self.password.text != ""):
             user_data["password"] = self.password.text
             
@@ -92,13 +94,18 @@ class SettingsScreen(Screen):
             self.city_state_label.text = "Error: invalid zip code"
     
         #print the user's city/state to the city_state_label
+
         return
 
 class HomeMountainScreen(Screen):
     pass
 
 class MountainFinderScreen(Screen):
-    pass
+    
+    def getItems(self):
+        f = open("mountain.txt", "r")
+        list1 = self.list = list(f)
+        return list1
 class SignupPopup(Popup):
     pass
 

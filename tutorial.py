@@ -9,7 +9,7 @@ class TutorialApp(App):
     def build(self):
         f = FloatLayout()
         s = Scatter()
-        l = Label(text='Hello!',
+        l = Label(text='Hey Noogey you suck a big !!',
                 font_size=150)
         f.add_widget(s)
         s.add_widget(l)

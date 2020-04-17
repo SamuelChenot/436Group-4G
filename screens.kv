@@ -1,0 +1,127 @@
+# File name: screens.kv
+
+#The list of all screens that are contained within the menu manager. every feature that needs a screen should be here
+<MenuManager>:
+	HomeMountainScreen:
+    SettingsScreen:
+    MountainFinderScreen:
+
+<SettingsScreen>:
+	name: "Settings"
+
+	#attributes for the python file
+	user_name: _user_name
+	zipcode: _zip_code
+	city_state_label: _city_state_label
+
+	BoxLayout:
+		orientation: "vertical"
+		canvas.before:
+			Color:
+				rgba: 1, 1, 1, .5
+			Rectangle:
+				pos: self.pos
+				size: self.size
+
+		Label:
+			text: "settings screen"
+            valign: 'middle'
+			size_hint_y: None
+			height: 45
+
+		#GridLayout of all the user input lines for the settings
+		GridLayout:
+			cols: 2
+			spacing: 10
+			Label:
+				text: "Username:"
+				size_hint: (None, None)
+				size: (100, 30)
+			TextInput:
+				id: _user_name
+			Label:
+				text: "Zip Code:"
+				size_hint: (None, None)
+				size: (100, 30)
+			TextInput:
+				id: _zip_code
+			
+				
+
+		Label:
+			id: _city_state_label
+			text: ""
+
+		Button:
+			text: "Update Settings"
+			on_release: root.updateSettings()
+
+<HomeMountainScreen>:
+	name: "HomeMountain"
+
+<MountainFinderScreen>:
+    name: "MountainFinder"
+
+
+
+<LoginPopup>:
+	title: 'Log In' 
+	size_hint: None, None
+	size: 400, 400
+	auto_dismiss: False
+	BoxLayout:
+		orientation: "vertical"
+		GridLayout:
+			rows: 2
+			size_hint: 1, None
+			height: 60
+		
+			Label:
+				text: "username"
+			TextInput:
+				multiline: False
+			Label:
+				text: "password"
+			TextInput:
+				multiline: False
+				password: True
+				
+		Label:
+		BoxLayout:
+			orientation: "horizontal"
+			Button:
+				text: "Log In"
+				on_release: root.dismiss()
+			Button:
+				text: "Guest"
+				on_release: root.dismiss()
+			Button:
+				text: "Sign up"
+				on_release: root.openSignupPopup()
+
+<SignupPopup>:
+	title: 'Sign Up' 
+	size_hint: None, None
+	size: 400, 400
+	auto_dismiss: False
+	
+	GridLayout:
+		cols: 2
+		
+		Label:
+			text: "username"
+		TextInput:
+			multiline: False
+		Label:
+			text: "password"
+		TextInput:
+			multiline: False
+			password: True
+		Label:
+			text: "repeat password"
+		TextInput:
+			multiline: False
+			password: True
+		Button:
+			text: "confirm"
+			on_release: root.dismiss()	

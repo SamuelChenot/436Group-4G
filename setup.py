@@ -7,8 +7,6 @@ is_guest = False
 
 #create the initial user data
 def initial_data():
-    user_data = {}
-    user_data["user_name"] = input("Username: ").lower()
     user_data["zip"] = input("Zip Code: ").lower()
     print(user_data)
 

@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS `mydb`.`Mountains` (
   `SnowDate` INT NOT NULL COMMENT 'The most recent snow in the the area.',
   `SnowDepth` INT NOT NULL,
   PRIMARY KEY (`MID`),
-  UNIQUE INDEX `Name_UNIQUE` (`Name` ASC) VISIBLE,
+  UNIQUE INDEX `Name_UNIQUE` (`Name` ASC) VISIBLE,)
   UNIQUE INDEX `MID_UNIQUE` (`MID` ASC) VISIBLE)
 ENGINE = InnoDB;
 

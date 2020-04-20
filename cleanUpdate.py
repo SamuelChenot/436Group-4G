@@ -155,7 +155,7 @@ def main():
         updateHourly(db, cursor, MID, weather.hourly)
         updateDaily(db, cursor, MID, weather.daily)
         MID += 1
-        print("Updated" + mountain[0])
+        print("Updated  " + mountain[0])
 
     print("Database successfully updated!")
     

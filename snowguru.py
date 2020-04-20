@@ -20,6 +20,8 @@ from kivy.uix.label import Label
 from kivy.uix.image import Image
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.recycleview import RecycleView
+from kivy.uix.widget import Widget
+
 
 
 import setup
@@ -54,12 +56,23 @@ class MenuManager(ScreenManager):
 # TODO split these classes up into multiple different files, for readability
 # where all of the screens functions can be stored.
 
-class LoginPopup(Popup):
+class ButtonWidget(Widget):
+    
+    def __init__(self, **kwargs):
 
-    #open the signup screen and close the current login screen
-    def openSignupPopup(self):
-        SignupPopup().open()
-        self.dismiss()
+        super(ButtonWidget, self).__init__(**kwargs)
+
+        btn1 = Button(text='Hello World 1', font_size="15sp",background_color=(1,1,1,1),color=(1,1,1,1),pos=(300,250),id='button1')
+        btn2 = Button(text='Hello World 2', font_size="15sp",background_color=(1,1,1,1),color=(1,1,1,1),pos=(200,250),id='button2')        
+
+        btn1.bind(on_press = self.callback)
+        btn2.bind(on_press = self.callback) 
+        self.add_widget(btn1) 
+        self.add_widget(btn2) 
+
+    def callback(self, instance): 
+        print("Button is pressed") 
+        print('The button %s ',(instance.id))
 
 
 class SettingsScreen(Screen):
@@ -95,11 +108,9 @@ class HomeMountainScreen(Screen):
     pass
 
 class MountainFinderScreen(Screen):
-    
     def getItems(self):
         f = open("mountain.txt", "r")
-        list1 = self.list = list(f)
-        return list1
+        return f
 class SignupPopup(Popup):
     pass
 

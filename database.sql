@@ -369,10 +369,35 @@ DELIMITER $$
 USE `mydb`$$
 CREATE PROCEDURE `updateDatabase` ()
 BEGIN
+<<<<<<< HEAD
     UPDATE Mountains, Sortlex
     SET Mountains.SnowDate = 0,
 		Mountains.SnowDepth = Sortlex.predictedSnow
 	WHERE Sortlex.predictedSnow > 0;
+END$$
+
+DELIMITER ;
+
+-- -----------------------------------------------------
+-- procedure updateCoordinates
+-- -----------------------------------------------------
+
+DELIMITER $$
+USE `mydb`$$
+CREATE PROCEDURE `updateCoordinates` (
+	IN UserID INT,
+    IN Lat FLOAT,
+    IN Lon FLOAT)
+BEGIN
+	UPDATE UserInfo
+    SET Latitude = Lat, Longitude = Lon
+    WHERE UID = UserID;
+=======
+    UPDATE Mountains
+    SET SnowDate = 0,
+		SnowDepth = SortLex.predictedSnow
+	WHERE SortLex.predictedSnow > 0;
+>>>>>>> 934b8ef5bd8b41abb6cb48ce60327484a7b7a908
 END$$
 
 DELIMITER ;

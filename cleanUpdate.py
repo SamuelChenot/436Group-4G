@@ -3,7 +3,6 @@ from datetime import datetime, date, timedelta
 import pandas as pd
 import MySQLdb
 import pyodbc
-import re
 
 #API Key
 #DARK_SKY_KEY = 'ce4149755b8988664a910e0ba7f9e5d1'
@@ -83,24 +82,8 @@ def getCoordinates():
     mountainInfo = mountainInfo[0:1]
     return mountainInfo
 
-#get the snowfall for both lists
-def averageSnow(summary):
-    print(summary)
-    if "snow" in summary:
-        #find the height (in inches) of snow
-        temp = re.findall(r'\d+', summary)
-        #average the two if there is a comparison
-        print(temp)
-        if(len(temp) == 2):
-            return ((int(temp[0])+int(temp[1]))/2)
-        #one measurement is given, return it
-        elif(len(temp) == 1):
-            return int(temp[0])
-    #no snow, return 0 inches
-    return 0
-
 def updateHourly(db, cursor, MID, hourly):
-    attributes = ['precipIntensity','precipProbability','precipType','temperature','apparentTemperature','humidity','windSpeed','windGust','windBearing','cloudCover','visibility']
+    attributes = ['precipIntensity','precipProbability','precipType','temperature','apparentTemperature','humidity','windSpeed','windGust','windBearing','cloudCover','visibility', 'precipAccumulation']
     hourIndex = 0;
     for hour in hourly.data:
         Query = "REPLACE INTO `Hourly` VALUES (" + str(MID) + "," + str(hourIndex) + ","       
@@ -111,13 +94,12 @@ def updateHourly(db, cursor, MID, hourly):
                 except:
                     Query = Query + "'none',"
             else:
-                Query = Query + str(hour[attribute]) + ","
-        cursor.execute(Query + str(averageSnow(hour['summary'])) + ");")   
+                Query = Query + str(hour[attribute]) + "," 
         db.commit()
         hourIndex += 1
         
 def updateDaily(db, cursor, MID, daily):
-    attributes = ['sunriseTime','sunsetTime','precipIntensity','precipIntensityMax','precipProbability','precipType','temperatureHigh','temperatureLow','humidity','windSpeed','windGust','windGustTime','windBearing','visibility']
+    attributes = ['sunriseTime','sunsetTime','precipIntensity','precipIntensityMax','precipProbability','precipType','temperatureHigh','temperatureLow','humidity','windSpeed','windGust','windGustTime','windBearing','visibility', 'precipAccumulation']
     td = timedelta(hours=5)
     dayIndex = 0;
     for day in daily.data:
@@ -132,7 +114,6 @@ def updateDaily(db, cursor, MID, daily):
                 Query = Query + "'" + (datetime.utcfromtimestamp(day[attribute])-timedelta(hours=4)).strftime("%H:%M") + "',"
             else:
                 Query = Query + str(day[attribute]) + ","
-        cursor.execute(Query + str(averageSnow(day['summary'])) + ");")   
         db.commit()
         dayIndex += 1
     

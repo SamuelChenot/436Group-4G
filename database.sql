@@ -26,7 +26,6 @@ CREATE TABLE IF NOT EXISTS `mydb`.`Mountains` (
   `Latitude` FLOAT NOT NULL,
   `Longitude` FLOAT NOT NULL,
   `SnowDate` INT,
-  `SnowDepth` INT,
   PRIMARY KEY (`MID`),
   UNIQUE INDEX `Name_UNIQUE` (`Name` ASC),
   UNIQUE INDEX `MID_UNIQUE` (`MID` ASC))
@@ -137,11 +136,6 @@ CREATE TABLE IF NOT EXISTS `mydb`.`SortLex` (`MID` INT, `Day` INT, `sunriseTime`
 CREATE TABLE IF NOT EXISTS `mydb`.`SortRecent` (`MID` INT, `Day` INT, `sunriseTime` INT, `sunsetTime` INT, `precipIntensity` INT, `precipIntensityMax` INT, `precipProbability` INT, `precipType` INT, `temperatureHigh` INT, `temperatureLow` INT, `humidity` INT, `windSpeed` INT, `windGust` INT, `windGustTime` INT, `windBearing` INT, `visibility` INT, `predictedSnow` INT);
 
 -- -----------------------------------------------------
--- Placeholder table for view `mydb`.`SortDepth`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`SortDepth` (`MID` INT, `Day` INT, `sunriseTime` INT, `sunsetTime` INT, `precipIntensity` INT, `precipIntensityMax` INT, `precipProbability` INT, `precipType` INT, `temperatureHigh` INT, `temperatureLow` INT, `humidity` INT, `windSpeed` INT, `windGust` INT, `windGustTime` INT, `windBearing` INT, `visibility` INT, `predictedSnow` INT);
-
--- -----------------------------------------------------
 -- Placeholder table for view `mydb`.`SortPredicted`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `mydb`.`SortPredicted` (`MID` INT, `Day` INT, `sunriseTime` INT, `sunsetTime` INT, `precipIntensity` INT, `precipIntensityMax` INT, `precipProbability` INT, `precipType` INT, `temperatureHigh` INT, `temperatureLow` INT, `humidity` INT, `windSpeed` INT, `windGust` INT, `windGustTime` INT, `windBearing` INT, `visibility` INT, `predictedSnow` INT);
@@ -159,7 +153,7 @@ BEGIN
 	SET newID = 0;
 	SELECT MAX(UID) INTO newID FROM Clients;
 	INSERT INTO Clients(UID, Latitude, Longitude) VALUES (newID + 1, 0, 0);
-	SELECT newID;
+	SELECT newID + 1;
 END$$
 
 DELIMITER ;
@@ -184,25 +178,36 @@ END$$
 DELIMITER ;
 
 -- -----------------------------------------------------
--- procedure getMountain
+-- procedure getMountainHourly
 -- -----------------------------------------------------
 
 DELIMITER $$
 USE `mydb`$$
-CREATE PROCEDURE `getMountain` (
+CREATE PROCEDURE `getMountainHourly` (
 	IN MntID INT,
     IN Now INT
 )
 BEGIN
 	SELECT * FROM Hourly
     WHERE MntID = MID 
-	  AND Hour > Now 
-	  AND Hour < (Now + 24)
-    UNION
-	SELECT * FROM  Daily WHERE MntID = MID;
+	  AND Hour >= Now 
+	  AND Hour < (Now + 24);
 END$$
 
 DELIMITER ;
+
+-- -----------------------------------------------------
+-- procedure getMountainDaily
+-- -----------------------------------------------------
+
+DELIMITER $$
+USE `mydb`$$
+CREATE PROCEDURE `getMountainDaily` (
+	IN MntID INT
+)
+BEGIN
+	SELECT * FROM  Daily WHERE MntID = MID;
+END$$
 
 -- -----------------------------------------------------
 -- procedure searchDistance
@@ -282,27 +287,6 @@ END$$
 DELIMITER ;
 
 -- -----------------------------------------------------
--- procedure searchDepth
--- -----------------------------------------------------
-
-DELIMITER $$
-USE `mydb`$$
-CREATE PROCEDURE `searchDepth` (
-	IN UserID INT,
-    IN Home BOOLEAN
-)
-BEGIN
-    IF Home THEN
-		SELECT * FROM SortDepth WHERE SortDepth.MID IN
-			(SELECT MID FROM HomeMT WHERE UID = UserID);
-	ELSE
-		SELECT * FROM SortDepth;
-	END IF;
-END$$
-
-DELIMITER ;
-
--- -----------------------------------------------------
 -- procedure searchPredicted
 -- -----------------------------------------------------
 
@@ -331,10 +315,16 @@ DELIMITER $$
 USE `mydb`$$
 CREATE PROCEDURE `updateDatabase` ()
 BEGIN
-	
+	SET SQL_SAFE_UPDATES = 0;
     UPDATE Mountains
-    SET SnowDate = 0
-	WHERE SortLex.precipType = 'snow';
+    SET SnowDate = SnowDate - 1;
+	SET SQL_SAFE_UPDATES = 1;
+    
+    UPDATE Mountains
+    SET Mountains.SnowDate = 0
+    WHERE Mountains.MID = Daily.MID
+		AND Daily.Day = 0
+        AND Daily.precipType = 'snow';
 END$$
 
 DELIMITER ;
@@ -376,18 +366,7 @@ CREATE  OR REPLACE VIEW `SortRecent` AS
 	SELECT Daily.*
     FROM Daily INNER JOIN Mountains ON Mountains.MID = Daily.MID
 	WHERE Daily.Day = 0
-    ORDER BY Mountains.SnowDate ASC;
-
--- -----------------------------------------------------
--- View `mydb`.`SortDepth`
--- -----------------------------------------------------
-DROP TABLE IF EXISTS `mydb`.`SortDepth`;
-USE `mydb`;
-CREATE  OR REPLACE VIEW `SortDepth` AS
-	SELECT Daily.*
-    FROM Daily INNER JOIN Mountains ON Mountains.MID = Daily.MID
-	WHERE Daily.Day = 0
-    ORDER BY Mountains.SnowDepth ASC;
+    ORDER BY Mountains.recentSnow;
 
 -- -----------------------------------------------------
 -- View `mydb`.`SortPredicted`
@@ -395,10 +374,8 @@ CREATE  OR REPLACE VIEW `SortDepth` AS
 DROP TABLE IF EXISTS `mydb`.`SortPredicted`;
 USE `mydb`;
 CREATE  OR REPLACE VIEW `SortPredicted` AS
-	SELECT *
-    FROM Daily
-	WHERE Day = 0 
-    ORDER BY predictedSnow ASC;
+	SELECT * FROM DAILY WHERE precipType = 'snow' ORDER BY Day;
+
     
 CREATE USER 'BaseUser' IDENTIFIED BY 'password';
 

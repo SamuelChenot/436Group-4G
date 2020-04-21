@@ -22,6 +22,7 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.recycleview import RecycleView
 from kivy.uix.widget import Widget
 
+from sql_interactions import *
 from capture_app_info import *
 import setup
 import zip_find
@@ -86,13 +87,16 @@ class SettingsScreen(Screen):
 
 
 class HomeMountainScreen(Screen):
-    pass
+
+    def getItems(self):
+        data = (get_mountains_hourly(get_uid(), True))
+        return data
 
 class MountainFinderScreen(Screen):
 
     def updatemountain(self):
         uid = get_uid()
-        capture_id(uid, self.mountain_id.text)
+        capture_id((uid), self.mountain_id.text)
         if(self.mountain_id.text != ''and self.mountain_id.text > "0" and self.mountain_id.text < "69"):
             self.successful.text = "Mountain ID: Captured "+ str(self.mountain_id.text)
         else:

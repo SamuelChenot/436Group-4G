@@ -59,12 +59,23 @@
 			Rectangle:
 				pos: self.pos
 				size: self.size
-		
+		Button:
+			text: "Get Home Mountains"
+			valign: 'middle'
+			on_release: root.getItems()
+			size_hint: (1, .2)
 		Label:
 			text: "Home Mountains Screen"
             valign: 'middle'
 			size_hint_y: None
 			height: 45
+		RecycleView:
+            data:[{'text': str(root.getItems()),'size_hint':(1,None)}]
+            viewclass: 'Button'
+            RecycleBoxLayout:
+                size_hint: (1,None)
+                height: self.minimum_height
+                orientation: 'vertical'
 
 <MountainFinderScreen>:
     name: "MountainFinder"
@@ -106,7 +117,7 @@
 			on_release: root.updatemountain()
 			size_hint: (1, .2)
 		RecycleView:
-            data:[{'text': str(x),'size_hint':(1,None)} for x in root.getItems()]
+			data:[{'text': str(x),'size_hint':(1,None)} for x in root.getItems()]
             viewclass: 'Button'
             RecycleBoxLayout:
                 size_hint: (1,None)

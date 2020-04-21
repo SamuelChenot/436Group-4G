@@ -2,29 +2,12 @@
 -- Sun Apr 19 17:55:43 2020
 -- Model: New Model    Version: 1.0
 -- MySQL Workbench Forward Engineering
---
+
 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
 
-
--- DROP PROCEDURE searchPredicted;
--- DROP PROCEDURE searchLex;
--- DROP PROCEDURE searchDepth;
--- DROP PROCEDURE createUser;
--- DROP PROCEDURE toggleHome;
--- DROP PROCEDURE getMountain;
--- DROP PROCEDURE searchDistance;
--- DROP PROCEDURE searchRecent;
--- DROP PROCEDURE updateDatabase;
--- DROP PROCEDURE updateCoordinates;
--- DROP TABLE Mountains;
--- DROP USER BaseUser;
--- DROP USER AllUsers;
--- FLUSH PRIVILEGES;
--- DROP TABLE Hourly;
--- DROP TABLE Daily;
------------------------------------------------------
+-- -----------------------------------------------------
 -- Schema mydb
 -- -----------------------------------------------------
 
@@ -89,12 +72,12 @@ ENGINE = InnoDB;
 CREATE TABLE IF NOT EXISTS `mydb`.`Daily` (
   `MID` TINYINT(1),
   `Day` TINYINT(1),
-  `sunriseTime` VARCHAR(6) NOT NULL,
-  `sunsetTime` VARCHAR(6) NOT NULL,
+  `sunriseTime` VARCHAR(10) NOT NULL,
+  `sunsetTime` VARCHAR(10) NOT NULL,
   `precipIntensity` FLOAT NOT NULL,
   `precipIntensityMax` FLOAT NOT NULL,
   `precipProbability` FLOAT NOT NULL,
-  `precipType` VARCHAR(6) NOT NULL,
+  `precipType` VARCHAR(10) NOT NULL,
   `temperatureHigh` FLOAT NOT NULL,
   `temperatureLow` FLOAT NOT NULL,
   `humidity` FLOAT NOT NULL,
@@ -167,18 +150,15 @@ CREATE TABLE IF NOT EXISTS `mydb`.`SortPredicted` (`MID` INT, `Day` INT, `sunris
 -- procedure createUser
 -- -----------------------------------------------------
 
--- CALL createUser(@newID);
--- SELECT @newID;
--- SELECT * FROM UserInfo;
 DELIMITER $$
 USE `mydb`$$
 CREATE PROCEDURE `createUser` (
     OUT newID INT
 )
 BEGIN
-	SET newID = 1;
-	SELECT MAX(UID) INTO newID FROM UserInfo;
-	INSERT INTO UserInfo(UID, Latitude, Longitude) VALUES (newID + 1, 0, 0);
+	SET newID = 0;
+	SELECT MAX(UID) INTO newID FROM Clients;
+	INSERT INTO Clients(UID, Latitude, Longitude) VALUES (newID + 1, 0, 0);
 	SELECT newID;
 END$$
 
@@ -187,7 +167,6 @@ DELIMITER ;
 -- -----------------------------------------------------
 -- procedure toggleHome
 -- -----------------------------------------------------
-
 
 DELIMITER $$
 USE `mydb`$$
@@ -207,8 +186,7 @@ DELIMITER ;
 -- -----------------------------------------------------
 -- procedure getMountain
 -- -----------------------------------------------------
--- DROP PROCEDURE `getMountain`;
--- CALL getMountain(1, 2);
+
 DELIMITER $$
 USE `mydb`$$
 CREATE PROCEDURE `getMountain` (
@@ -217,27 +195,14 @@ CREATE PROCEDURE `getMountain` (
 )
 BEGIN
 	SELECT * FROM Hourly
-	JOIN Daily ON Daily.MID = Hourly.MID
-	WHERE Hour > Now AND Hour < Now + 24;
+    WHERE MntID = MID 
+	  AND Hour > Now 
+	  AND Hour < (Now + 24)
+    UNION
+	SELECT * FROM  Daily WHERE MntID = MID;
 END$$
+
 DELIMITER ;
-
--- DELIMITER $$
--- USE `mydb`$$
--- CREATE PROCEDURE `getMountain` (
--- 	IN MntID INT,
---     IN Now INT
--- )
--- BEGIN
--- 	SELECT * FROM Hourly
---     WHERE MntID = MID 
--- 	  AND Hour > Now 
--- 	  AND Hour < (Now + 24)
---     UNION
--- 	SELECT * FROM  Daily WHERE MntID = MID;
--- END$$
-
--- DELIMITER ;
 
 -- -----------------------------------------------------
 -- procedure searchDistance
@@ -253,8 +218,8 @@ BEGIN
 	DECLARE baseLat, baseLon FLOAT DEFAULT 0;
 	SELECT Latitude, Longitude INTO baseLat, baseLon FROM UserInfo WHERE UID = UserID;
     IF Home THEN
-		SELECT *, Mountains.Latitude, Mountains.Longitude
-        FROM Daily, Mountains
+		SELECT Daily.*
+        FROM Daily INNER JOIN Mountains ON Daily.MID = Mountains.MID
         WHERE Daily.Day = 0 AND Daily.MID IN
 			(SELECT MID FROM HomeMT WHERE UID = UserID)
 		ORDER BY (
@@ -262,7 +227,9 @@ BEGIN
 				 POW(Longitude-baseLon, 2))
 		) ASC;
 	ELSE
-		SELECT *, Latitude, Longitude FROM Daily, Mountains WHERE Daily.Day = 0 
+		SELECT Daily.*
+        FROM Daily INNER JOIN Mountains ON Daily.MID = Mountains.MID
+        WHERE Daily.Day = 0 
         ORDER BY (
             SQRT(POW( Latitude-baseLat, 2) + 
 				 POW(Longitude-baseLon, 2))
@@ -359,45 +326,15 @@ DELIMITER ;
 -- -----------------------------------------------------
 -- procedure updateDatabase
 -- -----------------------------------------------------
--- SELECT * FROM Mountains;
--- SELECT predictedSnow FROM Sortlex;
--- INSERT INTO Sortlex(predictedSnow) VALUES(12);
--- CALL updateDatabase();
--- DROP PROCEDURE updateDatabase;
 
 DELIMITER $$
 USE `mydb`$$
 CREATE PROCEDURE `updateDatabase` ()
 BEGIN
-<<<<<<< HEAD
-    UPDATE Mountains, Sortlex
-    SET Mountains.SnowDate = 0,
-		Mountains.SnowDepth = Sortlex.predictedSnow
-	WHERE Sortlex.predictedSnow > 0;
-END$$
-
-DELIMITER ;
-
--- -----------------------------------------------------
--- procedure updateCoordinates
--- -----------------------------------------------------
-
-DELIMITER $$
-USE `mydb`$$
-CREATE PROCEDURE `updateCoordinates` (
-	IN UserID INT,
-    IN Lat FLOAT,
-    IN Lon FLOAT)
-BEGIN
-	UPDATE UserInfo
-    SET Latitude = Lat, Longitude = Lon
-    WHERE UID = UserID;
-=======
+	
     UPDATE Mountains
-    SET SnowDate = 0,
-		SnowDepth = SortLex.predictedSnow
-	WHERE SortLex.predictedSnow > 0;
->>>>>>> 934b8ef5bd8b41abb6cb48ce60327484a7b7a908
+    SET SnowDate = 0
+	WHERE SortLex.precipType = 'snow';
 END$$
 
 DELIMITER ;
@@ -413,7 +350,7 @@ CREATE PROCEDURE `updateCoordinates` (
     IN Lat FLOAT,
     IN Lon FLOAT)
 BEGIN
-	UPDATE UserInfo
+	UPDATE Clients
     SET Latitude = Lat, Longitude = Lon
     WHERE UID = UserID;
 END$$
@@ -549,3 +486,6 @@ VALUES
 	(67,"Stratton Mountain Resort",43.1134,-72.9081,0,0),
 	(68,"Sugarbush Resort",44.1359,-72.8944,0,0),
 	(69,"Suicide Six",43.6651,-72.5433,0,0);
+    
+INSERT INTO Clients(UID, Latitude, Longitude)
+VALUE (0, NULL, NULL);

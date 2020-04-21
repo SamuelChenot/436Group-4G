@@ -89,7 +89,7 @@ class SettingsScreen(Screen):
 class HomeMountainScreen(Screen):
 
     def getItems(self):
-        data = (get_mountains_hourly(get_uid(), True))
+        data = list(get_mountains_hourly(get_uid(), True))
         return data
 
 class MountainFinderScreen(Screen):

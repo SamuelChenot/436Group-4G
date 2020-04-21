@@ -62,7 +62,6 @@
 		Button:
 			text: "Get Home Mountains"
 			valign: 'middle'
-			on_release: root.getItems()
 			size_hint: (1, .2)
 		Label:
 			text: "Home Mountains Screen"
@@ -70,7 +69,7 @@
 			size_hint_y: None
 			height: 45
 		RecycleView:
-            data:[{'text': str(root.getItems()),'size_hint':(1,None)}]
+            data:[{'text': str(x),'size_hint':(1,None)} for x in root.getItems()]
             viewclass: 'Button'
             RecycleBoxLayout:
                 size_hint: (1,None)

@@ -66,3 +66,4 @@ def get_mountains_hourly(UID, home_mountain):
     cursor.close()
 
     return data #Formated as a 2d tuple
+

@@ -80,6 +80,7 @@ def getCoordinates():
 ['Stratton Mountain Resort', 43.1134, -72.9081],
 ['Sugarbush Resort', 44.1359, -72.8944],
 ['Suicide Six', 43.6651, -72.5433]]
+    mountainInfo = mountainInfo[0:2]
     return mountainInfo
 
 #get the snowfall for both lists
@@ -98,7 +99,7 @@ def averageSnow(summary):
 
 def updateHourly(db, cursor, MID, hourly):
     attributes = ['precipIntensity','precipProbability','precipType','temperature','apparentTemperature','humidity','windSpeed','windGust','windBearing','cloudCover','visibility']
-    hourIndex = 0;
+    hourIndex = 0
     for hour in hourly.data:
         Query = "REPLACE INTO `Hourly` VALUES (" + str(MID) + "," + str(hourIndex) + ","       
         for attribute in attributes:
@@ -116,7 +117,7 @@ def updateHourly(db, cursor, MID, hourly):
 def updateDaily(db, cursor, MID, daily):
     attributes = ['sunriseTime','sunsetTime','precipIntensity','precipIntensityMax','precipProbability','precipType','temperatureHigh','temperatureLow','humidity','windSpeed','windGust','windGustTime','windBearing','visibility']
     td = timedelta(hours=5)
-    dayIndex = 0;
+    dayIndex = 0
     for day in daily.data:
         Query = "REPLACE INTO `Daily` VALUES (" + str(MID) + "," + str(dayIndex) + ","       
         for attribute in attributes:
@@ -165,7 +166,7 @@ def main():
     data = pd.read_sql(sql_string, con=db)
     print(data)
 
-    sql_string = 'CALL updateDatabase();'
-    cursor.execute(sql_string)
+    #sql_string = 'CALL updateDatabase();'
+    #cursor.execute(sql_string)
 
 main()
